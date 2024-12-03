@@ -15,7 +15,30 @@ fn part1(input: &str) -> u64 {
 }
 
 fn part2(input: &str) -> u64 {
-    0
+    let mut enabled = true;
+    let re = Regex::new(r"(mul\(\d+,\d+\)|do\(\)|don\'t\(\))").unwrap();
+
+    let mut sum = 0;
+
+    for m in re.find_iter(input) {
+        match m.as_str() {
+            "do()" => {
+                enabled = true;
+            }
+            "don't()" => {
+                enabled = false;
+            }
+            s => {
+                if enabled {
+                    let re = Regex::new(r"mul\((\d+)\,(\d+)\)").unwrap();
+                    let cap = re.captures(s).unwrap();
+                    sum += cap[1].parse::<u64>().unwrap() * cap[2].parse::<u64>().unwrap();
+                }
+            }
+        }
+    }
+
+    sum
 }
 
 fn main() {
@@ -34,10 +57,10 @@ mod tests {
         assert_eq!(161, result);
     }
 
-    // #[test]
-    // fn test_part2() {
-    //     let result = part2(include_str!("../../inputs/day03_example.txt"));
+    #[test]
+    fn test_part2() {
+        let result = part2(include_str!("../../inputs/day03p2_example.txt"));
 
-    //     assert_eq!(4, result);
-    // }
+        assert_eq!(48, result);
+    }
 }
