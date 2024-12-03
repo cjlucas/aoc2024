@@ -37,7 +37,23 @@ fn part1(input: &str) -> usize {
 }
 
 fn part2(input: &str) -> usize {
-    0
+    let mut sum = 0;
+
+    for line in input.lines() {
+        let line = Line::new(line);
+
+        if (0..line.ns.len()).any(|idx| {
+            let mut ns = line.ns.clone();
+            ns.remove(idx);
+            let line2 = Line { ns };
+
+            line2.is_safe()
+        }) {
+            sum += 1;
+        }
+    }
+
+    sum
 }
 
 fn main() {
@@ -56,10 +72,10 @@ mod tests {
         assert_eq!(2, result);
     }
 
-    // #[test]
-    // fn test_part2() {
-    //     let result = part2(include_str!("../../inputs/day02_example.txt"));
+    #[test]
+    fn test_part2() {
+        let result = part2(include_str!("../../inputs/day02_example.txt"));
 
-    //     assert_eq!(31, result);
-    // }
+        assert_eq!(4, result);
+    }
 }
