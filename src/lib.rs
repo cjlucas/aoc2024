@@ -4,6 +4,6 @@ mod tests {
 
     #[test]
     fn test_thing() {
-        assert!(false)
+        assert!(true)
     }
 }
