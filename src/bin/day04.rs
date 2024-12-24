@@ -132,9 +132,9 @@ fn part2(input: &str) -> u64 {
 
     let mut result = 0;
 
-    let mut foo = HashSet::new();
-    foo.insert(Some('M'));
-    foo.insert(Some('S'));
+    let mut expected_chars = HashSet::new();
+    expected_chars.insert(Some('M'));
+    expected_chars.insert(Some('S'));
 
     for x in 0..grid.num_cols() {
         for y in 0..grid.num_rows() {
@@ -151,7 +151,7 @@ fn part2(input: &str) -> u64 {
             iter.next();
             set.insert(iter.next());
 
-            if set != foo {
+            if set != expected_chars {
                 continue;
             }
 
@@ -164,7 +164,7 @@ fn part2(input: &str) -> u64 {
             iter.next();
             set.insert(iter.next());
 
-            if set != foo {
+            if set != expected_chars {
                 continue;
             }
 
