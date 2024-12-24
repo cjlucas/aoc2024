@@ -51,16 +51,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part1() {
+    fn test_part1_example() {
         let result = part1(include_str!("../../inputs/day03_example.txt"));
 
         assert_eq!(161, result);
     }
 
     #[test]
-    fn test_part2() {
+    fn test_part1() {
+        let result = part1(include_str!("../../inputs/day03.txt"));
+
+        assert_eq!(188741603, result);
+    }
+
+    #[test]
+    fn test_part2_example() {
         let result = part2(include_str!("../../inputs/day03p2_example.txt"));
 
         assert_eq!(48, result);
+    }
+
+    #[test]
+    fn test_part2() {
+        let result = part2(include_str!("../../inputs/day03.txt"));
+
+        assert_eq!(67269798, result);
     }
 }
