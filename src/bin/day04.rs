@@ -1,4 +1,3 @@
-use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
 const INPUT: &str = include_str!("../../inputs/day04.txt");
@@ -37,11 +36,11 @@ impl Direction {
 
 impl Grid {
     fn num_rows(&self) -> usize {
-        *self.items.keys().map(|(x, y)| y).max().unwrap() + 1
+        *self.items.keys().map(|(_, y)| y).max().unwrap() + 1
     }
 
     fn num_cols(&self) -> usize {
-        *self.items.keys().map(|(x, y)| x).max().unwrap() + 1
+        *self.items.keys().map(|(x, _)| x).max().unwrap() + 1
     }
 
     fn at(&self, x: usize, y: usize) -> Option<char> {
