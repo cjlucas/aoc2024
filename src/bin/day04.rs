@@ -1,44 +1,135 @@
 use regex::Regex;
+use std::collections::HashMap;
 
-const INPUT: &str = include_str!("../../inputs/day03.txt");
+const INPUT: &str = include_str!("../../inputs/day04.txt");
 
-fn part1(input: &str) -> u64 {
-    let re = Regex::new(r"mul\((\d+)\,(\d+)\)").unwrap();
-
-    let mut sum = 0;
-
-    for (_, [a, b]) in re.captures_iter(input).map(|c| c.extract()) {
-        sum += a.parse::<u64>().unwrap() * b.parse::<u64>().unwrap();
-    }
-
-    sum
+#[derive(Debug)]
+struct Grid {
+    items: HashMap<(usize, usize), char>,
 }
 
-fn part2(input: &str) -> u64 {
-    let mut enabled = true;
-    let re = Regex::new(r"(mul\(\d+,\d+\)|do\(\)|don\'t\(\))").unwrap();
+#[derive(Debug)]
+enum Direction {
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW,
+}
 
-    let mut sum = 0;
+impl Direction {
+    fn offset(&self) -> (i64, i64) {
+        match self {
+            Self::N => (0, -1),
+            Self::NE => (1, -1),
+            Self::E => (1, 0),
+            Self::SE => (1, 1),
+            Self::S => (0, 1),
+            Self::SW => (-1, -1),
+            Self::W => (-1, 0),
+            Self::NW => (-1, 1),
+        }
+    }
+}
 
-    for m in re.find_iter(input) {
-        match m.as_str() {
-            "do()" => {
-                enabled = true;
-            }
-            "don't()" => {
-                enabled = false;
-            }
-            s => {
-                if enabled {
-                    let re = Regex::new(r"mul\((\d+)\,(\d+)\)").unwrap();
-                    let cap = re.captures(s).unwrap();
-                    sum += cap[1].parse::<u64>().unwrap() * cap[2].parse::<u64>().unwrap();
+impl Grid {
+    fn num_rows(&self) -> usize {
+        *self.items.keys().map(|(x, y)| y).max().unwrap() + 1
+    }
+
+    fn num_cols(&self) -> usize {
+        *self.items.keys().map(|(x, y)| x).max().unwrap() + 1
+    }
+
+    fn at(&self, x: usize, y: usize) -> Option<char> {
+        self.items.get(&(x, y)).copied()
+    }
+
+    fn direction_iterator(&self, x: usize, y: usize, direction: Direction) -> DirectionIterator {
+        DirectionIterator {
+            point: Some((x, y)),
+            direction,
+            grid: self,
+        }
+    }
+}
+
+struct DirectionIterator<'a> {
+    point: Option<(usize, usize)>,
+    direction: Direction,
+    grid: &'a Grid,
+}
+
+impl<'a> Iterator for DirectionIterator<'a> {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let (x, y) = self.point?;
+        let item = self.grid.at(x, y)?;
+
+        let (x_offset, y_offset) = self.direction.offset();
+        let x = (x as i64).checked_add(x_offset).map(|n| n as usize);
+        let y = (y as i64).checked_add(y_offset).map(|n| n as usize);
+
+        self.point = if x.is_some() && y.is_some() {
+            Some((x.unwrap(), y.unwrap()))
+        } else {
+            None
+        };
+
+        Some(item)
+    }
+}
+
+fn parse_input(input: &str) -> Grid {
+    let mut items = HashMap::new();
+
+    for (y, line) in input.lines().enumerate() {
+        for (x, ch) in line.chars().enumerate() {
+            items.insert((x, y), ch);
+        }
+    }
+
+    Grid { items }
+}
+
+fn part1(input: &str) -> u64 {
+    let grid = parse_input(input);
+
+    let mut result = 0;
+
+    for x in 0..grid.num_cols() {
+        for y in 0..grid.num_rows() {
+            for direction in vec![
+                Direction::N,
+                Direction::NE,
+                Direction::E,
+                Direction::SE,
+                Direction::S,
+                Direction::SW,
+                Direction::W,
+                Direction::NW,
+            ] {
+                let mut iter = grid.direction_iterator(x, y, direction);
+                if iter.next() == Some('X')
+                    && iter.next() == Some('M')
+                    && iter.next() == Some('A')
+                    && iter.next() == Some('S')
+                {
+                    result += 1;
                 }
             }
         }
     }
 
-    sum
+    result
+}
+
+fn part2(input: &str) -> u64 {
+    0
 }
 
 fn main() {
@@ -52,29 +143,29 @@ mod tests {
 
     #[test]
     fn test_part1_example() {
-        let result = part1(include_str!("../../inputs/day03_example.txt"));
+        let result = part1(include_str!("../../inputs/day04_example.txt"));
 
-        assert_eq!(161, result);
+        assert_eq!(18, result);
     }
 
     #[test]
     fn test_part1() {
-        let result = part1(include_str!("../../inputs/day03.txt"));
+        let result = part1(include_str!("../../inputs/day04.txt"));
 
-        assert_eq!(188741603, result);
+        assert_eq!(2569, result);
     }
 
-    #[test]
-    fn test_part2_example() {
-        let result = part2(include_str!("../../inputs/day03p2_example.txt"));
+    // #[test]
+    // fn test_part2_example() {
+    //     let result = part2(include_str!("../../inputs/day04p2_example.txt"));
 
-        assert_eq!(48, result);
-    }
+    //     assert_eq!(0, result);
+    // }
 
-    #[test]
-    fn test_part2() {
-        let result = part2(include_str!("../../inputs/day03.txt"));
+    // #[test]
+    // fn test_part2() {
+    //     let result = part2(include_str!("../../inputs/day04.txt"));
 
-        assert_eq!(67269798, result);
-    }
+    //     assert_eq!(0, result);
+    // }
 }
