@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const INPUT: &str = include_str!("../../inputs/day04.txt");
 
@@ -28,9 +28,9 @@ impl Direction {
             Self::E => (1, 0),
             Self::SE => (1, 1),
             Self::S => (0, 1),
-            Self::SW => (-1, -1),
+            Self::SW => (-1, 1),
             Self::W => (-1, 0),
-            Self::NW => (-1, 1),
+            Self::NW => (-1, -1),
         }
     }
 }
@@ -129,7 +129,51 @@ fn part1(input: &str) -> u64 {
 }
 
 fn part2(input: &str) -> u64 {
-    0
+    let grid = parse_input(input);
+
+    let mut result = 0;
+
+    let mut foo = HashSet::new();
+    foo.insert(Some('M'));
+    foo.insert(Some('S'));
+
+    for x in 0..grid.num_cols() {
+        for y in 0..grid.num_rows() {
+            if grid.at(x, y) != Some('A') {
+                continue;
+            }
+
+            let mut set = HashSet::new();
+            let mut iter = grid.direction_iterator(x, y, Direction::NW);
+            iter.next();
+            set.insert(iter.next());
+
+            let mut iter = grid.direction_iterator(x, y, Direction::SE);
+            iter.next();
+            set.insert(iter.next());
+
+            if set != foo {
+                continue;
+            }
+
+            let mut set = HashSet::new();
+            let mut iter = grid.direction_iterator(x, y, Direction::NE);
+            iter.next();
+            set.insert(iter.next());
+
+            let mut iter = grid.direction_iterator(x, y, Direction::SW);
+            iter.next();
+            set.insert(iter.next());
+
+            if set != foo {
+                continue;
+            }
+
+            result += 1;
+        }
+    }
+
+    result
 }
 
 fn main() {
@@ -155,17 +199,17 @@ mod tests {
         assert_eq!(2569, result);
     }
 
-    // #[test]
-    // fn test_part2_example() {
-    //     let result = part2(include_str!("../../inputs/day04p2_example.txt"));
+    #[test]
+    fn test_part2_example() {
+        let result = part2(include_str!("../../inputs/day04_example.txt"));
 
-    //     assert_eq!(0, result);
-    // }
+        assert_eq!(9, result);
+    }
 
-    // #[test]
-    // fn test_part2() {
-    //     let result = part2(include_str!("../../inputs/day04.txt"));
+    #[test]
+    fn test_part2() {
+        let result = part2(include_str!("../../inputs/day04.txt"));
 
-    //     assert_eq!(0, result);
-    // }
+        assert_eq!(1998, result);
+    }
 }
